@@ -1,0 +1,57 @@
+#A! Needs to be copied into a new Applescript window.
+
+tell application "Audio MIDI Setup" to run
+delay 1
+tell application "System Events"
+	if not (exists (window "MIDI Studio" of process "Audio MIDI Setup")) then
+		#display dialog "Window not found"
+		tell application "Audio MIDI Setup" to activate
+		key code 19 using {command down}
+		delay 3
+	end if
+	if not (exists (window "MIDI Network Setup" of process "Audio MIDI Setup")) then
+		#display dialog "Network setup windows not found"
+		tell application "Audio MIDI Setup" to activate
+	end if
+end tell
+
+tell application "System Events"
+	tell process "Audio MIDI Setup"
+		set imgNetwork to 1st image of group 1 of scroll area 1 of window "MIDI Studio" whose title starts with "Network"
+		
+		#entire contents of window "MIDI Studio"
+		set posX to position of imgNetwork
+		set sizX to size of imgNetwork
+		set posXx to ((item 1 of posX) + (item 1 of sizX) / 2) div 1
+		set posXy to ((item 2 of posX) + (item 2 of sizX) / 2) div 1
+		
+		do shell script "/usr/local/bin/cliclick c:" & posXx & "," & posXy & ""
+		#select imgNetwork
+		tell imgNetwork
+			#perform action "AXPress"
+			perform action "Show Info"
+		end tell
+	end tell
+end tell
+
+repeat
+	try
+		tell application "System Events"
+			tell process "Audio MIDI Setup"
+				set theTable to table 1 of scroll area 1 of group 3 of window "MIDI Network Setup"
+				
+				repeat with aRow in row of theTable
+					if name of first UI element of aRow starts with "iPhone Simulator" then
+						select aRow
+						click button "Connect" of group 3 of window "MIDI Network Setup"
+					end if
+				end repeat
+				
+				
+			end tell
+		end tell
+	on error errorMessage number errorNumber
+		log ("errorMessage: " & errorMessage & ", errorNumber: " & errorNumber)
+	end try
+	delay 5
+end repeat
